@@ -9,12 +9,15 @@
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "nyuzuPortfolio.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
 AnyuzuPortfolioCharacter::AnyuzuPortfolioCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-	
+
 	// Create the first person mesh that will be viewed only by this character's owner
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("First Person Mesh"));
 
@@ -45,7 +48,7 @@ AnyuzuPortfolioCharacter::AnyuzuPortfolioCharacter()
 }
 
 void AnyuzuPortfolioCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{	
+{
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
@@ -117,4 +120,38 @@ void AnyuzuPortfolioCharacter::DoJumpEnd()
 {
 	// pass StopJumping to the character
 	StopJumping();
+}
+
+AActor* AnyuzuPortfolioCharacter::GetLookAtActor() {
+
+
+	//APlayerController* player_controller = GetWorld()->GetFirstPlayerController();
+	APlayerController* player_controller = UGameplayStatics::GetPlayerController(this, 0);
+
+	if (player_controller == nullptr)
+	{
+		return nullptr;
+	}
+
+	FVector view_location;
+	FRotator view_rotation;
+
+	player_controller->GetPlayerViewPoint(view_location, view_rotation);
+
+	FVector start = view_location;
+	FVector end = start + view_rotation.Vector() * 10000.0f;
+
+	FHitResult hit_result;
+
+	FCollisionQueryParams query_params;
+	query_params.AddIgnoredActor(this);
+
+	bool is_hit = GetWorld()->LineTraceSingleByChannel(hit_result, start, end, ECC_Visibility, query_params);
+
+	if (is_hit)
+	{
+		return hit_result.GetActor();
+	}
+
+	return nullptr;
 }
