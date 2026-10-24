@@ -48,6 +48,11 @@ protected:
 	/** Mouse Look Input Action */
 	UPROPERTY(EditAnywhere, Category ="Input")
 	class UInputAction* MouseLookAction;
+
+	/* Intrraction Input Action */
+	UPROPERTY(EditAnywhere, Category = "Input")
+	TObjectPtr<UInputAction> InteractAction;
+
 	
 public:
 	AnyuzuPortfolioCharacter();
@@ -93,6 +98,8 @@ public:
 public:
 	//Holy made Fanction
 	AActor* GetLookAtActor();
+
+	void Interact();
 
 };
 

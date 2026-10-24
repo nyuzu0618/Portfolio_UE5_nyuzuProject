@@ -12,6 +12,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "InteractableObjBase.h"
 
 AnyuzuPortfolioCharacter::AnyuzuPortfolioCharacter()
 {
@@ -62,6 +63,9 @@ void AnyuzuPortfolioCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		// Looking/Aiming
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AnyuzuPortfolioCharacter::LookInput);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &AnyuzuPortfolioCharacter::LookInput);
+
+		//Interact
+		EnhancedInputComponent->BindAction( InteractAction, ETriggerEvent::Started, this, &AnyuzuPortfolioCharacter::Interact );
 	}
 	else
 	{
@@ -154,4 +158,28 @@ AActor* AnyuzuPortfolioCharacter::GetLookAtActor() {
 	}
 
 	return nullptr;
+}
+
+void AnyuzuPortfolioCharacter::Interact()
+{
+	AActor* target_actor = GetLookAtActor();
+
+	if (target_actor == nullptr)
+	{
+		return;
+	}
+
+	AInteractableObjBase* target_object = Cast<AInteractableObjBase>(target_actor);
+
+	if (target_object == nullptr)
+	{
+		return;
+	}
+
+	if (!target_object->CanInteract())
+	{
+		return;
+	}
+
+	target_object->Interaction();
 }
