@@ -1,11 +1,14 @@
 
 #include "DoorBase.h"
+#include "Camera/CameraComponent.h"
 
 ADoorBase::ADoorBase()
 {
     PrimaryActorTick.bCanEverTick = false;
 
     DoorTimeline = CreateDefaultSubobject<UTimelineComponent>( TEXT("DoorTimeline") );
+
+    CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamearaComponent"));
 }
 
 void ADoorBase::BeginPlay()

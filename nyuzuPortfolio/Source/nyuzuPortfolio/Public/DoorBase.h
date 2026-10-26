@@ -47,6 +47,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
     TObjectPtr<UCurveFloat> DoorCurve;
 
+    UPROPERTY(EditAnywhere, Category = "Door")
+    class UCameraComponent* CameraComp;
+
 private:
     UPROPERTY(VisibleAnywhere, Category = "Door")
     TObjectPtr<UTimelineComponent> DoorTimeline;
