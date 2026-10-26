@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,12 +5,14 @@
 #include "DoorBase.h"
 #include "DoorForButton.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class NYUZUPORTFOLIO_API ADoorForButton : public ADoorBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
+public:
+    ADoorForButton();
+
+    UFUNCTION(BlueprintCallable, Category = "Signal")
+    void ReceiveSignal();
 };

@@ -12,6 +12,10 @@
 UCLASS()
 class NYUZUPORTFOLIO_API AButtonBase : public AInteractableObjBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
+public:
+    AButtonBase();
+
+    virtual void Interaction() override;
 };

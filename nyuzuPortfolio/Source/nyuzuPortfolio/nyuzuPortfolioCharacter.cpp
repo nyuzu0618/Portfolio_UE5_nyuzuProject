@@ -173,13 +173,16 @@ void AnyuzuPortfolioCharacter::Interact()
 
 	if (target_object == nullptr)
 	{
+
 		return;
 	}
 
 	if (!target_object->CanInteract())
 	{
+		
 		return;
 	}
 
 	target_object->Interaction();
+	
 }

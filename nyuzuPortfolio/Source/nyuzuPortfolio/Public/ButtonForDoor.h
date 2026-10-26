@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,12 +5,19 @@
 #include "ButtonBase.h"
 #include "ButtonForDoor.generated.h"
 
-/**
- * 
- */
+class ADoorForButton;
+
 UCLASS()
 class NYUZUPORTFOLIO_API AButtonForDoor : public AButtonBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
+public:
+    AButtonForDoor();
+
+    virtual void Interaction() override;
+
+protected:
+    UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Button")
+    TObjectPtr<ADoorForButton> TargetDoor;
 };
