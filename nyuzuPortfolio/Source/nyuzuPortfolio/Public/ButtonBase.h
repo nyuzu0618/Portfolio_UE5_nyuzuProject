@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ObjBase.h"
-#include "InteractableObj.generated.h"
+#include "InteractableObjBase.h"
+#include "ButtonBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class NYUZUPORTFOLIO_API AInteractableObj : public AObjBase
+class NYUZUPORTFOLIO_API AButtonBase : public AInteractableObjBase
 {
 	GENERATED_BODY()
 	
