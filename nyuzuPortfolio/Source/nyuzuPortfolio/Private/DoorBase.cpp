@@ -9,6 +9,8 @@ ADoorBase::ADoorBase()
     DoorTimeline = CreateDefaultSubobject<UTimelineComponent>( TEXT("DoorTimeline") );
 
     CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamearaComponent"));
+    CameraComp->SetupAttachment(RootComponent);
+
 }
 
 void ADoorBase::BeginPlay()
