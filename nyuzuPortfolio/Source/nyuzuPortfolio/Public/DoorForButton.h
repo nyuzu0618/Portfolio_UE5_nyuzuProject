@@ -5,6 +5,8 @@
 #include "DoorBase.h"
 #include "DoorForButton.generated.h"
 
+class IIntearctInterface;
+
 UCLASS()
 class NYUZUPORTFOLIO_API ADoorForButton : public ADoorBase
 {
@@ -12,6 +14,8 @@ class NYUZUPORTFOLIO_API ADoorForButton : public ADoorBase
 
 public:
     ADoorForButton();
+
+    void Interaction() override;
 
     UFUNCTION(BlueprintCallable, Category = "Signal")
     void ReceiveSignal();

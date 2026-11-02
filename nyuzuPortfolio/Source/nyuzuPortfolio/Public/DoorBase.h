@@ -1,9 +1,10 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "InteractableObjBase.h"
 #include "Components/TimelineComponent.h"
+#include "Components/SceneComponent.h"
+#include "Camera/CameraComponent.h"
 #include "DoorBase.generated.h"
 
 UENUM(BlueprintType)
@@ -12,6 +13,9 @@ enum class EMyDropdownSelection : uint8
     OptionA UMETA(DisplayName = "slide"),
     OptionB UMETA(DisplayName = "rotate"),
 };
+
+class USceneComponent;
+class UCameraComponent;
 
 UCLASS()
 class NYUZUPORTFOLIO_API ADoorBase : public AInteractableObjBase
@@ -47,8 +51,12 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Door")
     TObjectPtr<UCurveFloat> DoorCurve;
 
-    UPROPERTY(EditAnywhere, Category = "Door")
-    class UCameraComponent* CameraComp;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+    USceneComponent* CameraRoot;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+    UCameraComponent* CameraComp;
 
 private:
     UPROPERTY(VisibleAnywhere, Category = "Door")

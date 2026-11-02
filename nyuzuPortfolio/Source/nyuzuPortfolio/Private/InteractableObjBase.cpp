@@ -38,3 +38,11 @@ void AInteractableObjBase::SetCanInteract(bool bNewCanInteract)
 {
     bCanInteract = bNewCanInteract;
 }
+
+bool AInteractableObjBase::GetCanMoveCamera() {
+    return bCanMoveCamera;
+}
+
+void AInteractableObjBase::SetCanMoveCamera(bool CanMove) {
+    bCanMoveCamera = CanMove;
+}

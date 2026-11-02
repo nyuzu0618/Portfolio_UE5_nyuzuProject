@@ -4,8 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "IntearctInterface.h"
 #include "nyuzuPortfolioPlayerController.generated.h"
 
+class UCameraComponent;
 class UInputMappingContext;
 class UUserWidget;
 
@@ -15,7 +17,7 @@ class UUserWidget;
  *  Overrides the Player Camera Manager class.
  */
 UCLASS(abstract, config="Game")
-class NYUZUPORTFOLIO_API AnyuzuPortfolioPlayerController : public APlayerController
+class NYUZUPORTFOLIO_API AnyuzuPortfolioPlayerController : public APlayerController, public IIntearctInterface
 {
 	GENERATED_BODY()
 	
@@ -54,4 +56,15 @@ protected:
 
 	/** Returns true if the player should use UMG touch controls */
 	bool ShouldUseTouchControls() const;
+
+
+protected:
+	virtual void changeCamera(UCameraComponent* TargetCamera, float MoveTime, float returnTime)override;
+
+private:
+
+	UPROPERTY()
+	TObjectPtr<AActor> previousViewTarget = nullptr;
+
+	FTimerHandle cameraReturnTimer;
 };

@@ -34,4 +34,17 @@ public:
     例：イベントなどで使用を停止するちぇえく*/
     void SetCanInteract(bool bNewCanInteract);
 
+
+
+    //カメラの移動を可能かどうか
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+    bool bCanMoveCamera = true;
+
+    //カメラの移動可能変数の取得
+    UFUNCTION(BlueprintCallable, Category = "Interaction")
+    bool GetCanMoveCamera();
+
+    //カメラの移動を可能かどうか設定する
+    UFUNCTION(BlueprintCallable, Category = "Interaction")
+    void SetCanMoveCamera(bool moveCamera);
 };

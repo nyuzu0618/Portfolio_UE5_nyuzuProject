@@ -6,11 +6,13 @@ ADoorBase::ADoorBase()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    DoorTimeline = CreateDefaultSubobject<UTimelineComponent>( TEXT("DoorTimeline") );
+    DoorTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DoorTimeline"));
 
-    CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CamearaComponent"));
-    CameraComp->SetupAttachment(RootComponent);
+    CameraRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CameraRoot"));
+    CameraRoot->SetupAttachment(RootComponent);
 
+    CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+    CameraComp->SetupAttachment(CameraRoot);
 }
 
 void ADoorBase::BeginPlay()

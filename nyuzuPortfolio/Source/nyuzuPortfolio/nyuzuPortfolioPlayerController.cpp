@@ -7,6 +7,8 @@
 #include "InputMappingContext.h"
 #include "nyuzuPortfolioCameraManager.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraComponent.h"
+#include "TimerManager.h"
 #include "nyuzuPortfolio.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
@@ -74,3 +76,49 @@ bool AnyuzuPortfolioPlayerController::ShouldUseTouchControls() const
 	// are we on a mobile platform? Should we force touch?
 	return SVirtualJoystick::ShouldDisplayTouchInterface() || bForceTouchControls;
 }
+
+void AnyuzuPortfolioPlayerController::changeCamera(
+    UCameraComponent* targetCamera,
+    float moveTime,
+    float returnTime)
+{
+    if (!targetCamera)
+    {
+        return;
+    }
+
+    GetWorldTimerManager().ClearTimer(cameraReturnTimer);
+
+    previousViewTarget = GetViewTarget();
+
+    SetViewTargetWithBlend(
+        targetCamera->GetOwner(),
+        moveTime,
+        EViewTargetBlendFunction::VTBlend_EaseInOut,
+        2.0f
+    );
+
+    if (returnTime > 0.0f && previousViewTarget)
+    {
+        GetWorldTimerManager().SetTimer(
+            cameraReturnTimer,
+            [this]()
+            {
+                if (previousViewTarget)
+                {
+                    SetViewTargetWithBlend(
+                        previousViewTarget,
+                        1.5f,
+                        EViewTargetBlendFunction::VTBlend_EaseInOut,
+                        2.0f
+                    );
+
+                    previousViewTarget = nullptr;
+                }
+            },
+            moveTime + returnTime,
+            false
+        );
+    }
+}
+

@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "IntearctInterface.generated.h"
 
+class UCameraComponent;
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UIntearctInterface : public UInterface
@@ -22,4 +24,8 @@ class NYUZUPORTFOLIO_API IIntearctInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+
+	// カメラのムーブにおける処理
+	virtual void changeCamera( UCameraComponent* TargetCamera, float MoveTime, float returnTime ) = 0;
+
 };
