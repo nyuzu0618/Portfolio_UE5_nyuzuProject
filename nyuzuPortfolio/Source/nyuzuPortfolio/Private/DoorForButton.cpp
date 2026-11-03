@@ -4,6 +4,7 @@
 ADoorForButton::ADoorForButton()
 {
     PrimaryActorTick.bCanEverTick = false;
+
 }
 
 void ADoorForButton::Interaction()
@@ -13,8 +14,7 @@ void ADoorForButton::Interaction()
     {
         APlayerController* PC = GetWorld()->GetFirstPlayerController();
 
-        IIntearctInterface* Interface =
-            Cast<IIntearctInterface>(PC);
+        IIntearctInterface* Interface = Cast<IIntearctInterface>(PC);
 
         if (Interface)
         {

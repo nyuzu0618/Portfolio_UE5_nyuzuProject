@@ -10,9 +10,13 @@ ADoorBase::ADoorBase()
 
     CameraRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CameraRoot"));
     CameraRoot->SetupAttachment(RootComponent);
+    CameraRoot->bEditableWhenInherited = true;
 
     CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
     CameraComp->SetupAttachment(CameraRoot);
+    CameraComp->bEditableWhenInherited = true;
+
+    CameraComp->SetAbsolute(true, true, true);
 }
 
 void ADoorBase::BeginPlay()
@@ -51,6 +55,12 @@ void ADoorBase::BeginPlay()
             DoorTimeline->SetPlaybackPosition( DoorTimeline->GetTimelineLength(), false, false );
         }
     }
+
+    if (!CameraComp)
+    {
+        CameraComp = FindComponentByClass<UCameraComponent>();
+    }
+
 }
 
 void ADoorBase::Interaction()

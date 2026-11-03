@@ -49,3 +49,11 @@ void AMainHUD::BeginPlay()
 
     UE_LOG(LogTemp, Warning, TEXT("Reticle Widget added to Viewport"));
 }
+
+void HiddenUI() {
+
+}
+
+void VisibleUI() {
+
+}

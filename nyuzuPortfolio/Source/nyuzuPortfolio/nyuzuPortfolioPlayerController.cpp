@@ -91,12 +91,7 @@ void AnyuzuPortfolioPlayerController::changeCamera(
 
     previousViewTarget = GetViewTarget();
 
-    SetViewTargetWithBlend(
-        targetCamera->GetOwner(),
-        moveTime,
-        EViewTargetBlendFunction::VTBlend_EaseInOut,
-        2.0f
-    );
+    SetViewTargetWithBlend( targetCamera->GetOwner(), moveTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2.0f );
 
     if (returnTime > 0.0f && previousViewTarget)
     {
