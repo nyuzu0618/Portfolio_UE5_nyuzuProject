@@ -14,6 +14,10 @@ class NYUZUPORTFOLIO_API AMainHUD : public AHUD, public IHUDInterface
 
 public:
 
+	void BeginPlay() override;
+
+public:
+
     virtual void SetUIVisibility(
         EHUDType UIType,
         bool bVisible
