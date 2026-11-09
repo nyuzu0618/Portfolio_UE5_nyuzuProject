@@ -22,5 +22,5 @@ public:
 	virtual void ChangeCamera(AActor* NewViewTarget, float BlendTime, float HoldTime, float ReturnBlendTime) = 0;
 
 	// 元のカメラに戻す
-	virtual void ReturnToDefaultCamera(float BlendTime) = 0;
+	virtual void ReturnToDefaultCamera(float BlendTime, float HoldTime) = 0;
 };

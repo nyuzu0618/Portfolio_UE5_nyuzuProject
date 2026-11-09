@@ -9,6 +9,7 @@
 #include "Blueprint/UserWidget.h"
 #include "TimerManager.h"
 #include "nyuzuPortfolio.h"
+#include "MainHUD.h"
 #include "Widgets/Input/SVirtualJoystick.h"
 
 AnyuzuPortfolioPlayerController::AnyuzuPortfolioPlayerController()
@@ -92,6 +93,19 @@ void AnyuzuPortfolioPlayerController::ChangeCamera(AActor* NewViewTarget, float 
 		PreviousViewTarget = GetViewTarget();
 	}
 
+	// 操作をロック
+	SetIgnoreMoveInput(true);
+	SetIgnoreLookInput(true);
+
+
+	//UIの非表示
+	AMainHUD* MainHUD = GetHUD<AMainHUD>();
+
+	if (IsValid(MainHUD))
+	{
+		MainHUD->SetUIVisibility(EHUDType::InGame, false);
+	}
+
 	SetViewTargetWithBlend(NewViewTarget, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2.0f);
 
 	if (HoldTime > 0.0f)
@@ -99,23 +113,45 @@ void AnyuzuPortfolioPlayerController::ChangeCamera(AActor* NewViewTarget, float 
 		// CreateUObject なので、PlayerController が破棄されていれば呼ばれない
 		TimerManager.SetTimer(
 			CameraReturnTimer,
-			FTimerDelegate::CreateUObject(this, &ThisClass::ReturnToDefaultCamera, ReturnBlendTime),
+			[this, ReturnBlendTime, HoldTime]()
+			{
+				ReturnToDefaultCamera(ReturnBlendTime, HoldTime);
+			},
 			BlendTime + HoldTime,
-			false);
+			false
+		);
 	}
 }
 
-void AnyuzuPortfolioPlayerController::ReturnToDefaultCamera(float BlendTime)
+void AnyuzuPortfolioPlayerController::ReturnToDefaultCamera(float BlendTime, float HoldTime)
 {
+	FTimerManager& TimerManager = GetWorldTimerManager();
 	GetWorldTimerManager().ClearTimer(CameraReturnTimer);
 
 	// 戻り先が消えていたら自分の Pawn に戻す
 	AActor* ReturnTarget = PreviousViewTarget.IsValid() ? PreviousViewTarget.Get() : GetPawn();
 
+
 	if (ReturnTarget)
 	{
 		SetViewTargetWithBlend(ReturnTarget, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2.0f);
 	}
+
+	TimerManager.SetTimer(
+		CameraReturnTimer,
+		[this]()
+		{
+			//操作をアンロック
+			SetIgnoreMoveInput(false);
+			SetIgnoreLookInput(false);
+
+			//UIの表示
+			AMainHUD* MainHUD = GetHUD<AMainHUD>();
+			MainHUD->SetUIVisibility(EHUDType::InGame, true);
+		},
+		BlendTime,
+		false
+	);
 
 	PreviousViewTarget = nullptr;
 }

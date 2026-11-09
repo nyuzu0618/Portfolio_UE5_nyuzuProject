@@ -27,7 +27,7 @@ public:
 
 	// ICameraControlInterface
 	virtual void ChangeCamera(AActor* NewViewTarget, float BlendTime, float HoldTime, float ReturnBlendTime) override;
-	virtual void ReturnToDefaultCamera(float BlendTime) override;
+	virtual void ReturnToDefaultCamera(float BlendTime, float HoldTime) override;
 
 protected:
 

@@ -12,6 +12,8 @@ void AMainHUD::BeginPlay()
     }
 }
 
+
+
 UUserWidget* AMainHUD::CreateHUDWidget(EHUDType UIType, TSubclassOf<UUserWidget> WidgetClass)
 {
     if (!WidgetClass)
@@ -41,6 +43,8 @@ UUserWidget* AMainHUD::CreateHUDWidget(EHUDType UIType, TSubclassOf<UUserWidget>
     return Widget;
 }
 
+
+
 void AMainHUD::SetUIVisibility(EHUDType UIType, bool bVisible)
 {
     UUserWidget* Widget = GetHUDWidget(UIType);
@@ -55,6 +59,8 @@ void AMainHUD::SetUIVisibility(EHUDType UIType, bool bVisible)
         : ESlateVisibility::Collapsed);
 }
 
+
+
 void AMainHUD::SetAllUIVisibility(bool bVisible)
 {
     for (const TPair<EHUDType, TObjectPtr<UUserWidget>>& Pair : HUDWidgets)
@@ -62,6 +68,8 @@ void AMainHUD::SetAllUIVisibility(bool bVisible)
         SetUIVisibility(Pair.Key, bVisible);
     }
 }
+
+
 
 UUserWidget* AMainHUD::GetHUDWidget(EHUDType UIType) const
 {
