@@ -21,6 +21,11 @@ void AInteractableObjBase::Interact_Implementation(AActor* InteractInstigator)
         return;
     }
 
+    if (ReTachCount) 
+    {
+        return;
+    }
+
     PlayInteractionCamera(InteractInstigator);
 
     OnInteract(InteractInstigator);
@@ -51,4 +56,26 @@ void AInteractableObjBase::PlayInteractionCamera(AActor* InteractInstigator) con
     {
         InteractionCamera->PlayFor(InteractInstigator);
     }
+}
+
+bool AInteractableObjBase::ReTachCount() 
+{
+    if (!ReTach && CurrentTach != 0)
+    {
+        return false;
+    }
+
+    CurrentTach++;
+
+    if(ReTachMax == 0)
+    {
+        return true;
+    }
+
+    if (CurrentTach >= ReTachMax) 
+    {
+        return false;
+    }
+
+    return true;
 }

@@ -59,4 +59,15 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
     FText InteractionText;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Button")
+    bool ReTach = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+    int ReTachMax = 0;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+    int CurrentTach = 0;
+
+    UFUNCTION(BluprinteReadOnly, Category = "Interaction")
+    bool ReTachCount();
 };

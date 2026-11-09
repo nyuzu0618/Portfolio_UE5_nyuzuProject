@@ -21,4 +21,5 @@ public:
     // 信号を送る対象
     UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Button")
     TArray<TObjectPtr<AActor>> Targets;
+
 };

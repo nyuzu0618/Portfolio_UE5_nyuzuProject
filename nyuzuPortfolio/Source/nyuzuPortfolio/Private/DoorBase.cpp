@@ -70,6 +70,11 @@ void ADoorBase::OnInteract(AActor* InteractInstigator)
 
 void ADoorBase::ReceiveSignal_Implementation(AActor* Sender, AActor* InteractInstigator)
 {
+    Open(Sender ,InteractInstigator);
+}
+
+void ADoorBase::Open(AActor* Sender, AActor* InteractInstigator)
+{
     // 信号の場合は bAllowDirectInteract を見ない
     if (!IsInteractionEnabled())
     {

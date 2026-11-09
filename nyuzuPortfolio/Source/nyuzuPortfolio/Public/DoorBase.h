@@ -46,6 +46,9 @@ protected:
 
     virtual void OnInteract(AActor* InteractInstigator) override;
 
+    UFUNCTION(BlueprintCallable, Category = "Door")
+    void Open(AActor* Sender, AActor* InteractInstigator);
+
     // 開き方(スライド / 回転)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
     EDoorOpenType OpenType = EDoorOpenType::Slide;

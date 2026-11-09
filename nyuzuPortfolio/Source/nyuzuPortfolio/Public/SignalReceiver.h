@@ -27,4 +27,6 @@ public:
 	// Sender: 信号を送ったもの(ボタン)  InteractInstigator: 操作したプレイヤー
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Signal")
 	void ReceiveSignal(AActor* Sender, AActor* InteractInstigator);
+
+
 };
