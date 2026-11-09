@@ -2,12 +2,14 @@
 
 
 #include "ObjBase.h"
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 AObjBase::AObjBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+ 	// 基本は Tick しない。必要なクラスだけ有効にする
+	PrimaryActorTick.bCanEverTick = false;
 
 	//見た目の設定
 	SceneRoot = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRoot"));
@@ -21,20 +23,24 @@ AObjBase::AObjBase()
 void AObjBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	InitializeObject();
 	
 }
 
-// Called every frame
-void AObjBase::Tick(float DeltaTime)
+void AObjBase::InitializeObject()
 {
-	Super::Tick(DeltaTime);
-
+	//エディタで設定した有効・無効状態を反映する
+	SetObjectActive(bIsActive);
 }
 
-void AObjBase::SetObjectActive(bool active) {
+void AObjBase::SetObjectActive(bool bNewActive) {
+		bIsActive = bNewActive;
 
+		SetActorHiddenInGame(!bIsActive);
+		SetActorEnableCollision(bIsActive);
 }
 
-void AObjBase::InitializeObject() {
-
+UStaticMeshComponent* AObjBase::GetMeshComponent() const {
+	return MeshComponent;
 }

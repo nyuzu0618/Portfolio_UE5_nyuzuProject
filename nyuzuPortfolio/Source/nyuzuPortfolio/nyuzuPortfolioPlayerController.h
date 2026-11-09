@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "IntearctInterface.h"
+#include "CameraControlInterface.h"
 #include "nyuzuPortfolioPlayerController.generated.h"
 
-class UCameraComponent;
 class UInputMappingContext;
 class UUserWidget;
 
@@ -16,15 +15,19 @@ class UUserWidget;
  *  Manages the input mapping context.
  *  Overrides the Player Camera Manager class.
  */
-UCLASS(abstract, config="Game")
-class NYUZUPORTFOLIO_API AnyuzuPortfolioPlayerController : public APlayerController, public IIntearctInterface
+UCLASS(abstract, config = "Game")
+class NYUZUPORTFOLIO_API AnyuzuPortfolioPlayerController : public APlayerController, public ICameraControlInterface
 {
 	GENERATED_BODY()
-	
+
 public:
 
 	/** Constructor */
 	AnyuzuPortfolioPlayerController();
+
+	// ICameraControlInterface
+	virtual void ChangeCamera(AActor* NewViewTarget, float BlendTime, float HoldTime, float ReturnBlendTime) override;
+	virtual void ReturnToDefaultCamera(float BlendTime) override;
 
 protected:
 
@@ -57,14 +60,11 @@ protected:
 	/** Returns true if the player should use UMG touch controls */
 	bool ShouldUseTouchControls() const;
 
-
-protected:
-	virtual void changeCamera(UCameraComponent* TargetCamera, float MoveTime, float returnTime)override;
-
 private:
 
-	UPROPERTY()
-	TObjectPtr<AActor> previousViewTarget = nullptr;
+	/** カメラ演出前の ViewTarget(戻り先) */
+	TWeakObjectPtr<AActor> PreviousViewTarget;
 
-	FTimerHandle cameraReturnTimer;
+	FTimerHandle CameraReturnTimer;
+
 };

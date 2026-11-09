@@ -7,7 +7,8 @@
 #include "ButtonBase.generated.h"
 
 /**
- * 
+ * 押すとtargetsに信号を送るボタン
+ * TargetsにはSignalReceiverを実装したActorを指定する
  */
 UCLASS()
 class NYUZUPORTFOLIO_API AButtonBase : public AInteractableObjBase
@@ -15,7 +16,9 @@ class NYUZUPORTFOLIO_API AButtonBase : public AInteractableObjBase
     GENERATED_BODY()
 
 public:
-    AButtonBase();
+    virtual void OnInteract(AActor* InteractInstigator) override;
 
-    virtual void Interaction() override;
+    // 信号を送る対象
+    UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "Button")
+    TArray<TObjectPtr<AActor>> Targets;
 };

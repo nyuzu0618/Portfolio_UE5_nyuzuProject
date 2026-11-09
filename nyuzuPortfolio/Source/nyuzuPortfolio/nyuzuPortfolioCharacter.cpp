@@ -8,11 +8,8 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "InteractionComponent.h"
 #include "nyuzuPortfolio.h"
-#include "GameFramework/PlayerController.h"
-#include "Engine/World.h"
-#include "Kismet/GameplayStatics.h"
-#include "InteractableObjBase.h"
 
 AnyuzuPortfolioCharacter::AnyuzuPortfolioCharacter()
 {
@@ -36,6 +33,9 @@ AnyuzuPortfolioCharacter::AnyuzuPortfolioCharacter()
 	FirstPersonCameraComponent->bEnableFirstPersonScale = true;
 	FirstPersonCameraComponent->FirstPersonFieldOfView = 70.0f;
 	FirstPersonCameraComponent->FirstPersonScale = 0.6f;
+
+	// Create the Interaction Component
+	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>(TEXT("InteractionComponent"));
 
 	// configure the character comps
 	GetMesh()->SetOwnerNoSee(true);
@@ -126,63 +126,10 @@ void AnyuzuPortfolioCharacter::DoJumpEnd()
 	StopJumping();
 }
 
-AActor* AnyuzuPortfolioCharacter::GetLookAtActor() {
-
-
-	//APlayerController* player_controller = GetWorld()->GetFirstPlayerController();
-	APlayerController* player_controller = UGameplayStatics::GetPlayerController(this, 0);
-
-	if (player_controller == nullptr)
-	{
-		return nullptr;
-	}
-
-	FVector view_location;
-	FRotator view_rotation;
-
-	player_controller->GetPlayerViewPoint(view_location, view_rotation);
-
-	FVector start = view_location;
-	FVector end = start + view_rotation.Vector() * 10000.0f;
-
-	FHitResult hit_result;
-
-	FCollisionQueryParams query_params;
-	query_params.AddIgnoredActor(this);
-
-	bool is_hit = GetWorld()->LineTraceSingleByChannel(hit_result, start, end, ECC_Visibility, query_params);
-
-	if (is_hit)
-	{
-		return hit_result.GetActor();
-	}
-
-	return nullptr;
-}
-
 void AnyuzuPortfolioCharacter::Interact()
 {
-	AActor* target_actor = GetLookAtActor();
-
-	if (target_actor == nullptr)
+	if (InteractionComponent)
 	{
-		return;
+		InteractionComponent->TryInteract();
 	}
-
-	AInteractableObjBase* target_object = Cast<AInteractableObjBase>(target_actor);
-
-	if (target_object == nullptr)
-	{
-
-		return;
-	}
-
-	if (!target_object->CanInteract())
-	{
-		
-		return;
-	}
-
-	target_object->Interaction();
-	
 }

@@ -1,59 +1,69 @@
 #include "MainHUD.h"
-#include "UI_Reticle.h"
-#include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "nyuzuPortfolio.h"
 
 void AMainHUD::BeginPlay()
 {
-    Super::BeginPlay();
+	Super::BeginPlay();
 
-    UE_LOG(LogTemp, Warning, TEXT("Into MainHUD::BeginPlay"));
+    for (const TPair<EHUDType, TSubclassOf<UUserWidget>>& Pair : WidgetClasses)
+    {
+        CreateHUDWidget(Pair.Key, Pair.Value);
+    }
+}
 
-    // レティクルのWBPを取得
-    FString ReticlePath = TEXT("/Game/Holy/UI/WBP/WBP_Reticle.WBP_Reticle_C");
-
-    TSubclassOf<UUserWidget> WidgetClass = TSoftClassPtr<UUserWidget>( FSoftObjectPath(ReticlePath) ).LoadSynchronous();
-
+UUserWidget* AMainHUD::CreateHUDWidget(EHUDType UIType, TSubclassOf<UUserWidget> WidgetClass)
+{
     if (!WidgetClass)
     {
-        UE_LOG( LogTemp, Error, TEXT("Failed to load WBP_Reticle: %s"), *ReticlePath );
-        return;
+        UE_LOG(LognyuzuPortfolio, Warning, TEXT("WidgetClass is not set: %s"), *UEnum::GetValueAsString(UIType));
+        return nullptr;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("WBP_Reticle loaded successfully"));
-
-    // PlayerControllerを取得
-    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-
-    if (!PlayerController)
+    APlayerController* PC = GetOwningPlayerController();
+    if (!PC)
     {
-        UE_LOG(LogTemp, Error, TEXT("PlayerController is nullptr"));
-        return;
+        UE_LOG(LognyuzuPortfolio, Error, TEXT("Owning PlayerController is null"));
+        return nullptr;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("PlayerController acquired"));
-
-    // Widgetを作成
-    UUserWidget* UserWidget = CreateWidget<UUserWidget>(PlayerController, WidgetClass);
-
-    if (!UserWidget)
+    UUserWidget* Widget = CreateWidget<UUserWidget>(PC, WidgetClass);
+    if (!Widget)
     {
-        UE_LOG(LogTemp, Error, TEXT("Failed to create Reticle Widget"));
-        return;
+        UE_LOG(LognyuzuPortfolio, Error, TEXT("Failed to create widget: %s"), *UEnum::GetValueAsString(UIType));
+        return nullptr;
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("Reticle Widget created"));
+    Widget->AddToViewport();
+    HUDWidgets.Add(UIType, Widget);
 
-    // Viewportに追加
-    UserWidget->AddToViewport(0);
-
-    UE_LOG(LogTemp, Warning, TEXT("Reticle Widget added to Viewport"));
+    UE_LOG(LognyuzuPortfolio, Verbose, TEXT("Created widget: %s"), *UEnum::GetValueAsString(UIType));
+    return Widget;
 }
 
-void HiddenUI() {
+void AMainHUD::SetUIVisibility(EHUDType UIType, bool bVisible)
+{
+    UUserWidget* Widget = GetHUDWidget(UIType);
+    if (!Widget)
+    {
+        UE_LOG(LognyuzuPortfolio, Warning, TEXT("Widget not found: %s"), *UEnum::GetValueAsString(UIType));
+        return;
+    }
 
+    Widget->SetVisibility(bVisible
+        ? ESlateVisibility::HitTestInvisible
+        : ESlateVisibility::Collapsed);
 }
 
-void VisibleUI() {
+void AMainHUD::SetAllUIVisibility(bool bVisible)
+{
+    for (const TPair<EHUDType, TObjectPtr<UUserWidget>>& Pair : HUDWidgets)
+    {
+        SetUIVisibility(Pair.Key, bVisible);
+    }
+}
 
+UUserWidget* AMainHUD::GetHUDWidget(EHUDType UIType) const
+{
+    return HUDWidgets.FindRef(UIType);
 }

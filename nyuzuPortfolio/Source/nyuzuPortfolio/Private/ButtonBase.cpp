@@ -1,17 +1,27 @@
 
 #include "ButtonBase.h"
+#include "SignalReceiver.h"
+#include "nyuzuPortfolio.h"
 
-AButtonBase::AButtonBase()
+void AButtonBase::OnInteract(AActor* InteractInstigator)
 {
-    PrimaryActorTick.bCanEverTick = false;
-}
+    Super::OnInteract(InteractInstigator);
 
-void AButtonBase::Interaction()
-{
-    if (!CanInteract())
+    for (AActor* Target : Targets)
     {
-        return;
-    }
+        if (!IsValid(Target))
+        {
+            continue;
+        }
 
-    // ボタン共通の処理が必要になった場合はここに追加する。
+        if (!Target->Implements<USignalReceiver>())
+        {
+            UE_LOG(LognyuzuPortfolio, Warning, TEXT("%s: Target %s does not implement SignalReceiver"),
+                *GetName(), *Target->GetName());
+            continue;
+        }
+
+        ISignalReceiver::Execute_ReceiveSignal(Target, this, InteractInstigator);
+    }
 }
+

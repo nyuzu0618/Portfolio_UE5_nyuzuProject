@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "ObjBase.generated.h"
 
+class USceneComponent;
+class UStaticMeshComponent;
+
 UCLASS()
 class NYUZUPORTFOLIO_API AObjBase : public AActor
 {
@@ -15,13 +18,29 @@ public:
 	// Sets default values for this actor's properties
 	AObjBase();
 
+
+	//有効・無効の切り替え（無効時は非表示・当たり判定なし）
+	UFUNCTION(BlueprintCallable, Category = "Object")
+	void SetObjectActive(bool bNewActive);
+
+	UFUNCTION(BlueprintPure, Category = "Object")
+	bool IsObjectActive() const { return bIsActive; }
+
+	FName GetObjectID() const { return ObjectID; }
+	FText GetObjectDisplayName() const { return DisplayName; }
+	FText GetObjectDescription() const { return Description; }
+
+	UStaticMeshComponent* GetMeshComponent() const;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+
+	//BeginPlay　で呼ばれる初期化。派生クラスで overrideする場合はSuperを呼ぶこと
+	UFUNCTION(BlueprintCallable, Category = "Object")
+	virtual void InitializeObject();
+
 
 private:
 	//オブジェクトの基本情報
@@ -48,11 +67,4 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Object", meta = (AllowPrivateAccess = "true"))
 	bool bIsActive = true;
 
-	UFUNCTION(BlueprintCallable, Category = "Object")
-	void SetObjectActive(bool bNewActive);
-
-
-	//初期化
-	UFUNCTION(BlueprintCallable, Category = "Object")
-	virtual void InitializeObject();
 };

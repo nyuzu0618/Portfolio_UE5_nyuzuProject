@@ -7,7 +7,6 @@
 #include "InputMappingContext.h"
 #include "nyuzuPortfolioCameraManager.h"
 #include "Blueprint/UserWidget.h"
-#include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "nyuzuPortfolio.h"
 #include "Widgets/Input/SVirtualJoystick.h"
@@ -68,7 +67,6 @@ void AnyuzuPortfolioPlayerController::SetupInputComponent()
 			}
 		}
 	}
-	
 }
 
 bool AnyuzuPortfolioPlayerController::ShouldUseTouchControls() const
@@ -77,43 +75,47 @@ bool AnyuzuPortfolioPlayerController::ShouldUseTouchControls() const
 	return SVirtualJoystick::ShouldDisplayTouchInterface() || bForceTouchControls;
 }
 
-void AnyuzuPortfolioPlayerController::changeCamera(
-    UCameraComponent* targetCamera,
-    float moveTime,
-    float returnTime)
+
+void AnyuzuPortfolioPlayerController::ChangeCamera(AActor* NewViewTarget, float BlendTime, float HoldTime, float ReturnBlendTime)
 {
-    if (!targetCamera)
-    {
-        return;
-    }
+	if (!IsValid(NewViewTarget))
+	{
+		return;
+	}
 
-    GetWorldTimerManager().ClearTimer(cameraReturnTimer);
+	FTimerManager& TimerManager = GetWorldTimerManager();
+	TimerManager.ClearTimer(CameraReturnTimer);
 
-    previousViewTarget = GetViewTarget();
+	// 演出中に再度呼ばれた場合、戻り先を演出用カメラで上書きしない
+	if (!PreviousViewTarget.IsValid())
+	{
+		PreviousViewTarget = GetViewTarget();
+	}
 
-    SetViewTargetWithBlend( targetCamera->GetOwner(), moveTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2.0f );
+	SetViewTargetWithBlend(NewViewTarget, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2.0f);
 
-    if (returnTime > 0.0f && previousViewTarget)
-    {
-        GetWorldTimerManager().SetTimer(
-            cameraReturnTimer,
-            [this]()
-            {
-                if (previousViewTarget)
-                {
-                    SetViewTargetWithBlend(
-                        previousViewTarget,
-                        1.5f,
-                        EViewTargetBlendFunction::VTBlend_EaseInOut,
-                        2.0f
-                    );
-
-                    previousViewTarget = nullptr;
-                }
-            },
-            moveTime + returnTime,
-            false
-        );
-    }
+	if (HoldTime > 0.0f)
+	{
+		// CreateUObject なので、PlayerController が破棄されていれば呼ばれない
+		TimerManager.SetTimer(
+			CameraReturnTimer,
+			FTimerDelegate::CreateUObject(this, &ThisClass::ReturnToDefaultCamera, ReturnBlendTime),
+			BlendTime + HoldTime,
+			false);
+	}
 }
 
+void AnyuzuPortfolioPlayerController::ReturnToDefaultCamera(float BlendTime)
+{
+	GetWorldTimerManager().ClearTimer(CameraReturnTimer);
+
+	// 戻り先が消えていたら自分の Pawn に戻す
+	AActor* ReturnTarget = PreviousViewTarget.IsValid() ? PreviousViewTarget.Get() : GetPawn();
+
+	if (ReturnTarget)
+	{
+		SetViewTargetWithBlend(ReturnTarget, BlendTime, EViewTargetBlendFunction::VTBlend_EaseInOut, 2.0f);
+	}
+
+	PreviousViewTarget = nullptr;
+}

@@ -1,72 +1,90 @@
-
 #include "DoorBase.h"
-#include "Camera/CameraComponent.h"
+#include "InteractionCameraComponent.h"
+#include "Components/TimelineComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Curves/CurveFloat.h"
+#include "nyuzuPortfolio.h"
 
 ADoorBase::ADoorBase()
 {
-    PrimaryActorTick.bCanEverTick = false;
-
     DoorTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DoorTimeline"));
 
-    CameraRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CameraRoot"));
-    CameraRoot->SetupAttachment(RootComponent);
-    CameraRoot->bEditableWhenInherited = true;
+    if (UStaticMeshComponent* Mesh = GetMeshComponent())
+    {
+        Mesh->SetMobility(EComponentMobility::Movable);
+    }
 
-    CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
-    CameraComp->SetupAttachment(CameraRoot);
-    CameraComp->bEditableWhenInherited = true;
-
-    CameraComp->SetAbsolute(true, true, true);
+    // ルートに付けるので、メッシュが動いてもカメラは動かない
+    CameraComp = CreateDefaultSubobject<UInteractionCameraComponent>(TEXT("CameraComponent"));
+    CameraComp->SetupAttachment(RootComponent);
 }
 
 void ADoorBase::BeginPlay()
 {
     Super::BeginPlay();
 
-    ClosedLocation = GetActorLocation();
-    ClosedRotation = GetActorRotation();
+    // 動かすのはメッシュなので、メッシュのローカル座標を閉じた状態として保存する
+    if (UStaticMeshComponent* Mesh = GetMeshComponent())
+    {
+        ClosedLocation = Mesh->GetRelativeLocation();
+        ClosedRotation = Mesh->GetRelativeRotation();
+    }
 
     if (DoorCurve)
     {
-        FOnTimelineFloat update_function;
+        FOnTimelineFloat UpdateFunction;
+        UpdateFunction.BindUFunction(this, GET_FUNCTION_NAME_CHECKED(ADoorBase, UpdateDoor));
 
-        update_function.BindUFunction( this, FName("UpdateDoor") );
-
-        DoorTimeline->AddInterpFloat( DoorCurve, update_function );
-
+        DoorTimeline->AddInterpFloat(DoorCurve, UpdateFunction);
         DoorTimeline->SetLooping(false);
+    }
+    else
+    {
+        UE_LOG(LognyuzuPortfolio, Warning, TEXT("%s: DoorCurve is not set"), *GetName());
     }
 
     bIsOpen = bStartsOpen;
 
     if (bIsOpen)
     {
-        if (DoorOpenSelection == EMyDropdownSelection::OptionA)
-        {
-            SetActorLocation(ClosedLocation + OpenLocation);
-        }
-        else
-        {
-            SetActorRotation(ClosedRotation + OpenRotation);
-        }
+        ApplyDoorAlpha(1.0f);
 
         if (DoorCurve)
         {
-            DoorTimeline->SetPlaybackPosition( DoorTimeline->GetTimelineLength(), false, false );
+            DoorTimeline->SetPlaybackPosition(DoorTimeline->GetTimelineLength(), false, false);
         }
     }
-
-    if (!CameraComp)
-    {
-        CameraComp = FindComponentByClass<UCameraComponent>();
-    }
-
 }
 
-void ADoorBase::Interaction()
+bool ADoorBase::CanInteract_Implementation(AActor* InteractInstigator) const
 {
-    if (!CanInteract() || !DoorCurve)
+    return bAllowDirectInteract && Super::CanInteract_Implementation(InteractInstigator);
+}
+
+void ADoorBase::OnInteract(AActor* InteractInstigator)
+{
+    Super::OnInteract(InteractInstigator);
+
+    ToggleDoor();
+}
+
+void ADoorBase::ReceiveSignal_Implementation(AActor* Sender, AActor* InteractInstigator)
+{
+    // 信号の場合は bAllowDirectInteract を見ない
+    if (!IsInteractionEnabled())
     {
+        return;
+    }
+
+    PlayInteractionCamera(InteractInstigator);
+    ToggleDoor();
+}
+
+void ADoorBase::ToggleDoor()
+{
+    if (!DoorCurve)
+    {
+        UE_LOG(LognyuzuPortfolio, Warning, TEXT("%s: Cannot toggle door because DoorCurve is not set"), *GetName());
         return;
     }
 
@@ -76,16 +94,7 @@ void ADoorBase::Interaction()
 
     if (bIsOpen)
     {
-        switch (DoorOpenSelection)
-        {
-        case EMyDropdownSelection::OptionA:
-            SlideOpen();
-            break;
-
-        case EMyDropdownSelection::OptionB:
-            RotateOpen();
-            break;
-        }
+        DoorTimeline->Play();
     }
     else
     {
@@ -93,29 +102,27 @@ void ADoorBase::Interaction()
     }
 }
 
-void ADoorBase::SlideOpen()
+void ADoorBase::UpdateDoor(float Alpha)
 {
-    DoorTimeline->Play();
+    ApplyDoorAlpha(Alpha);
 }
 
-void ADoorBase::RotateOpen()
+void ADoorBase::ApplyDoorAlpha(float Alpha)
 {
-    DoorTimeline->Play();
-}
-
-void ADoorBase::UpdateDoor(float Value )
-{
-
-    if (DoorOpenSelection == EMyDropdownSelection::OptionA)
+    UStaticMeshComponent* Mesh = GetMeshComponent();
+    if (!Mesh)
     {
-        FVector target_location = ClosedLocation + OpenLocation * Value;
-
-        SetActorLocation(target_location);
+        return;
     }
-    else if (DoorOpenSelection == EMyDropdownSelection::OptionB)
-    {
-        FRotator target_rotation = ClosedRotation + OpenRotation * Value;
 
-        SetActorRotation(target_rotation);
+    switch (OpenType)
+    {
+    case EDoorOpenType::Slide:
+        Mesh->SetRelativeLocation(ClosedLocation + OpenLocation * Alpha);
+        break;
+
+    case EDoorOpenType::Rotate:
+        Mesh->SetRelativeRotation(ClosedRotation + OpenRotation * Alpha);
+        break;
     }
 }

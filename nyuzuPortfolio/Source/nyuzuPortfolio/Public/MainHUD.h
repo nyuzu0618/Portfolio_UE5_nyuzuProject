@@ -2,38 +2,42 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "HUDInterface.h"
+#include "HUDTypes.h" 
 #include "MainHUD.generated.h"
 
 class UUserWidget;
 
 UCLASS()
-class NYUZUPORTFOLIO_API AMainHUD : public AHUD, public IHUDInterface
+class NYUZUPORTFOLIO_API AMainHUD : public AHUD
 {
     GENERATED_BODY()
 
 public:
 
-	void BeginPlay() override;
+    // UIの表示・非表示
+	UFUNCTION(BlueprintCallable, Category = "HUD")
+    virtual void SetUIVisibility(EHUDType UIType, bool bVisible);
 
-public:
+    //すべてのUIの表示・非表示
+	UFUNCTION(BlueprintCallable, Category = "HUD")  
+	void SetAllUIVisibility(bool bVisible);
 
-    virtual void SetUIVisibility(
-        EHUDType UIType,
-        bool bVisible
-    ) override;
+	UFUNCTION(BlueprintPure, Category = "HUD")
+	UUserWidget* GetHUDWidget(EHUDType UIType) const;
 
 protected:
 
-    UPROPERTY()
-    TObjectPtr<UUserWidget> ReticleWidget;
+    virtual void BeginPlay() override;
 
-    UPROPERTY()
-    TObjectPtr<UUserWidget> HPWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "HUD")
+	TMap<EHUDType, TSubclassOf<UUserWidget>> WidgetClasses;
 
-    UPROPERTY()
-    TObjectPtr<UUserWidget> MinimapWidget;
+private:
 
-    UPROPERTY()
-    TObjectPtr<UUserWidget> InteractionWidget;
+    // Widgetを作成して登録する
+    UUserWidget* CreateHUDWidget(EHUDType UIType, TSubclassOf<UUserWidget> WidgetClass);
+
+    // UIタイプとWidgetを紐づけて管理
+    UPROPERTY(Transient)
+    TMap<EHUDType, TObjectPtr<UUserWidget>> HUDWidgets;
 };

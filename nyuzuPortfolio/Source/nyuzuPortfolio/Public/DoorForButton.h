@@ -1,12 +1,12 @@
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "DoorBase.h"
 #include "DoorForButton.generated.h"
 
-class IIntearctInterface;
-
+/**
+ * ボタンからの信号でのみ開くドア
+ */
 UCLASS()
 class NYUZUPORTFOLIO_API ADoorForButton : public ADoorBase
 {
@@ -14,9 +14,4 @@ class NYUZUPORTFOLIO_API ADoorForButton : public ADoorBase
 
 public:
     ADoorForButton();
-
-    void Interaction() override;
-
-    UFUNCTION(BlueprintCallable, Category = "Signal")
-    void ReceiveSignal();
 };
